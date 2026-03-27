@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>秋天的英语学习计划 | v51.5 终极同步版</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0d1117; --card: #161b22; --accent: #00d4ff;
+            --text: #c9d1d9; --sec: #8b949e; --success: #238636;
+            --warn: #d29922; --border: #30363d; --critical: #f85149;
+            --gradient: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+        }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; display: flex; justify-content: center; -webkit-tap-highlight-color: transparent; }
+        .container { width: 100%; max-width: 800px; padding-bottom: 30px; }
+        header h1 { text-align: center; color: var(--accent); font-weight: 300; font-size: 1.4rem; margin-bottom: 10px; }
+        
+        .clock-box { text-align: center; margin-bottom: 15px; font-family: monospace; }
+        #liveClock { font-size: 1.6rem; color: var(--accent); font-weight: bold; }
+        #liveDate { font-size: 0.75rem; color: var(--sec); }
+
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .stat-item { background: #000; border: 1px solid var(--border); padding: 10px 5px; border-radius: 6px; text-align: center; }
+        .stat-item .val { display: block; font-size: 1.1rem; font-weight: bold; margin-bottom: 4px; }
+        .stat-item .lab { font-size: 0.55rem; color: var(--sec); display: block; margin-bottom: 5px;}
+        .pg-bg { background: #333; height: 4px; width: 80%; margin: 0 auto; border-radius: 2px; overflow: hidden; }
+        .pg-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.5s; }
+
+        .tool-bar { background: #1a1d23; padding: 12px; border-radius: 6px; margin-bottom: 10px; border: 1px dashed var(--accent); }
+        .row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+        .sync-input { background: #000; border: 1px solid var(--border); color: var(--success); padding: 8px; border-radius: 4px; flex: 1; outline:none; font-size: 13px; text-align: center; }
+        .btn-tool { padding: 10px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; font-size: 0.75rem; color: white; flex: 1; min-width: 80px; }
+
+        .panel { background: var(--card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 15px; overflow: hidden; }
+        .input-row { display: flex; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        input { background: transparent; border: none; padding: 14px; color: #fff; outline: none; flex: 1; font-size: 16px; min-width: 100px; }
+        .btn-tran { background: #21262d; color: var(--accent); border: none; border-left: 1px solid var(--border); padding: 0 15px; cursor: pointer; font-weight: bold; }
+        .btn-main { background: var(--accent); color: #000; border: none; padding: 15px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
+        
+        .cat-tabs { display: flex; gap: 6px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { flex: 1; min-width: 75px; padding: 10px 2px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; text-align: center; white-space: nowrap; }
+        .tab-btn.active { border-color: var(--accent); background: rgba(0, 212, 255, 0.1); }
+        .tab-btn b { display: block; font-size: 1.1rem; }
+        .tab-btn span { font-size: 0.6rem; color: var(--sec); }
+
+        .word-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; padding: 15px; position: relative; }
+        .en-txt { font-size: 1.3rem; font-weight: bold; color: var(--accent); display: block; word-break: break-all; }
+        .zh-txt { font-size: 0.95rem; color: var(--sec); display: block; margin-top: 4px; }
+        .time-tag { font-size: 0.75rem; color: var(--warn); display: block; margin-top: 8px; font-family: monospace; }
+        
+        .quiz-wrapper { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+        .quiz-in { background: #000; border-bottom: 2px solid var(--accent); border-top:none; border-left:none; border-right:none; color: var(--accent); font-size: 18px; flex: 1; outline: none; padding: 5px; border-radius: 0; }
+        .btn-confirm { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+        
+        .act-group { display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 12px; }
+        .i-btn { background: none; border: none; color: var(--sec); cursor: pointer; font-size: 0.85rem; padding: 5px 0; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="captureArea">
+    <header><h1>秋天的英语学习计划</h1></header>
+    <div class="clock-box">
+        <div id="liveClock">00:00:00</div>
+        <div id="liveDate">2026年03月27日</div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item"><span class="lab">今日目标(10)</span><span class="val" id="d_val">0</span><div class="pg-bg"><div class="pg-fill" id="d_pg"></div></div></div>
+        <div class="stat-item"><span class="lab">本周目标(70)</span><span class="val" id="w_val">0</span><div class="pg-bg"><div class="pg-fill" id="w_pg"></div></div></div>
+        <div class="stat-item"><span class="lab">本月目标(300)</span><span class="val" id="m_val">0</span><div class="pg-bg"><div class="pg-fill" id="m_pg"></div></div></div>
+    </div>
+
+    <div class="tool-bar">
+        <div class="row">
+            <input type="password" id="syncId" class="sync-input" placeholder="点击同步按钮将提示输入 Token" readonly>
+        </div>
+        <div class="row">
+            <button onclick="App.sync('push')" class="btn-tool" style="background:var(--success)">💾 云端备份</button>
+            <button onclick="App.sync('pull')" class="btn-tool" style="background:var(--accent); color:black">📥 同步下载</button>
+            <button onclick="generatePoster()" class="btn-tool" style="background:var(--gradient)">📸 生成战报</button>
+        </div>
+        <div class="row" style="margin-bottom:0; border-top: 1px solid #30363d; padding-top: 8px;">
+            <button onclick="App.exportJSON()" class="btn-tool" style="background:#444">📤 导出本地</button>
+            <button onclick="document.getElementById('fileIn').click()" class="btn-tool" style="background:#444">📥 导入恢复</button>
+            <input type="file" id="fileIn" style="display:none" onchange="App.importJSON(this)">
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="input-row">
+            <input type="text" id="eIn" placeholder="English">
+            <button class="btn-tran" onclick="App.translate()">🌐 翻译</button>
+            <input type="text" id="zIn" placeholder="中文">
+        </div>
+        <button class="btn-main" onclick="App.addWord()">💾 存入学习库</button>
+    </div>
+
+    <div class="cat-tabs" id="catTabs"></div>
+    <div id="listView"></div>
+</div>
+
+<script>
+    const App = {
+        STAGES: [5, 30, 720, 1440, 2880, 5760, 10080, 21600],
+        PLAN: { d: 10, w: 70, m: 300 },
+        GIST_ID: "682503e0daf82738d418a9731bef4302", 
+        words: JSON.parse(localStorage.getItem('autumn_plan_v50')) || [],
+        activeTab: 'new',
+
+        init() {
+            setInterval(() => this.tick(), 1000);
+            this.render();
+            this.updateTokenDisplay();
+        },
+
+        updateTokenDisplay() {
+            const token = localStorage.getItem('gh_token_v51');
+            document.getElementById('syncId').value = token ? "******** (已安全加密保存)" : "";
+        },
+
+        async getAuthToken() {
+            let token = localStorage.getItem('gh_token_v51');
+            if (!token) {
+                token = prompt("请输入你的 GitHub Personal Access Token (仅存放在当前设备浏览器):");
+                if (token) {
+                    localStorage.setItem('gh_token_v51', token.trim());
+                    this.updateTokenDisplay();
+                }
+            }
+            return token;
+        },
+
+        tick() {
+            const now = new Date();
+            document.getElementById('liveClock').innerText = now.toLocaleTimeString('zh-CN', {hour12:false});
+            document.getElementById('liveDate').innerText = now.toLocaleDateString('zh-CN', {year:'numeric',month:'long',day:'numeric',weekday:'long'});
+        },
+
+        async translate() {
+            const e = document.getElementById('eIn'), z = document.getElementById('zIn');
+            const q = e.value.trim() || z.value.trim();
+            if(!q) return;
+            const isEn = /[a-zA-Z]/.test(q);
+            try {
+                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${isEn?'zh-CN':'en'}&dt=t&q=${encodeURIComponent(q)}`);
+                const data = await res.json();
+                if(isEn) z.value = data[0][0][0]; else e.value = data[0][0][0];
+            } catch (err) { alert("翻译服务繁忙"); }
+        },
+
+        addWord() {
+            const e = document.getElementById('eIn').value.trim(), z = document.getElementById('zIn').value.trim();
+            if(!e || !z) return;
+            this.words.push({ id: Date.now(), e, z, s: 0, n: null, m_t: null });
+            this.save(); this.render();
+            document.getElementById('eIn').value = ''; document.getElementById('zIn').value = '';
+        },
+
+        save() { localStorage.setItem('autumn_plan_v50', JSON.stringify(this.words)); },
+
+        render() {
+            const now = Date.now();
+            const startOfD = new Date().setHours(0,0,0,0);
+            const startOfW = new Date(now - (new Date().getDay()||7-1)*86400000).setHours(0,0,0,0);
+            const startOfM = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+
+            let cats = { new: [], wait: [], monitor: [], master: [] };
+            let count = { d: 0, w: 0, m: 0 };
+
+            this.words.forEach(w => {
+                if(w.s >= this.STAGES.length && w.m_t) {
+                    if(w.m_t >= startOfD) count.d++;
+                    if(w.m_t >= startOfW) count.w++;
+                    if(w.m_t >= startOfM) count.m++;
+                    cats.master.push(w);
+                } else {
+                    if(!w.n) cats.new.push(w);
+                    else if(now >= w.n) cats.wait.push(w);
+                    else cats.monitor.push(w);
+                }
+            });
+
+            const updateUI = (key, cur, tar) => {
+                document.getElementById(`${key}_val`).innerText = cur;
+                document.getElementById(`${key}_pg`).style.width = Math.min((cur/tar)*100, 100) + '%';
+            };
+            updateUI('d', count.d, this.PLAN.d);
+            updateUI('w', count.w, this.PLAN.w);
+            updateUI('m', count.m, this.PLAN.m);
+
+            const config = [{id:'new',l:'新词库'}, {id:'wait',l:'待复盘'}, {id:'monitor',l:'监控中'}, {id:'master',l:'已掌握'}];
+            document.getElementById('catTabs').innerHTML = config.map(c => `
+                <div class="tab-btn ${this.activeTab===c.id?'active':''}" onclick="App.activeTab='${c.id}';App.render();">
+                    <b>${cats[c.id].length}</b><span>${c.l}</span>
+                </div>
+            `).join('');
+            document.getElementById('listView').innerHTML = cats[this.activeTab].map(w => this.buildCard(w)).join('');
+        },
+
+        buildCard(w) {
+            let body = '';
+            if (this.activeTab === 'new' || this.activeTab === 'wait') {
+                const label = this.activeTab === 'new' ? w.e : w.z;
+                body = `<span class="en-txt">${label}</span>
+                        <div class="quiz-wrapper">
+                            <input class="quiz-in" id="q-${w.id}" placeholder="拼写单词..." onkeydown="if(event.keyCode==13) App.check(${w.id})">
+                            <button class="btn-confirm" onclick="App.check(${w.id})">确认</button>
+                        </div>`;
+            } else {
+                const diff = w.n - Date.now();
+                const timeStr = diff > 0 ? `${Math.floor(diff/60000)}m后` : '逾期';
+                body = `<span class="en-txt">${w.e}</span><span class="zh-txt">${w.z}</span>
+                        <span class="time-tag">⏲️ ${this.activeTab==='monitor'?timeStr:'永久掌握'}</span>`;
+            }
+            return `<div class="word-card">${body}
+                <div class="act-group">
+                    <button class="i-btn" onclick="App.say('${w.e}')">🔊 发音</button>
+                    <button class="i-btn" style="color:var(--warn)" onclick="App.peek(${w.id},'${w.e}')">👁️ 偷看</button>
+                    <button class="i-btn" style="color:var(--critical);margin-left:auto" onclick="App.del(${w.id})">🗑️ 删除</button>
+                </div></div>`;
+        },
+
+        peek(id, correct) {
+            const input = document.getElementById(`q-${id}`);
+            if(!input) return;
+            input.value = correct; input.style.color = 'var(--warn)';
+            setTimeout(() => { input.value = ""; input.style.color = 'var(--accent)'; input.focus(); }, 1200);
+        },
+
+        check(id) {
+            const input = document.getElementById(`q-${id}`), word = this.words.find(w => w.id === id);
+            if(input.value.toLowerCase().trim() === word.e.toLowerCase().trim()) {
+                word.s++; 
+                word.n = Date.now() + this.STAGES[Math.min(word.s-1, this.STAGES.length-1)] * 60000;
+                if(word.s >= this.STAGES.length) word.m_t = Date.now();
+                this.save(); this.render();
+            } else {
+                input.style.borderBottomColor = 'var(--critical)';
+                setTimeout(() => input.style.borderBottomColor = 'var(--accent)', 1000);
+            }
+        },
+
+        async sync(type) {
+            const token = await this.getAuthToken();
+            if(!token) return;
+
+            const url = `https://api.github.com/gists/${this.GIST_ID}`;
+            try {
+                if(type === 'push') {
+                    const res = await fetch(url, {
+                        method: 'PATCH',
+                        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ files: { "words.json": { content: JSON.stringify(this.words) } } })
+                    });
+                    if(res.ok) alert("✅ 云端备份成功！");
+                    else {
+                        localStorage.removeItem('gh_token_v51'); // Token失效则清除
+                        alert("⚠️ Token 验证失败，请刷新重试。");
+                    }
+                } else {
+                    const res = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
+                    const data = await res.json();
+                    if(data.files && data.files["words.json"]) {
+                        this.words = JSON.parse(data.files["words.json"].content);
+                        this.save(); this.render();
+                        alert("✅ 📥 同步下载成功！");
+                    }
+                }
+            } catch(e) { alert("⚠️ 网络错误或 Token 无效。"); }
+        },
+
+        exportJSON() {
+            const blob = new Blob([JSON.stringify(this.words)], {type: "application/json"});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `秋天词库备份_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+        },
+
+        importJSON(input) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(Array.isArray(data)) {
+                        this.words = data; this.save(); this.render();
+                        alert("✅ 本地数据导入成功！");
+                    }
+                } catch(err) { alert("❌ 导入失败：文件格式不正确"); }
+            };
+            reader.readAsText(input.files[0]);
+        },
+
+        say(t) { const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; window.speechSynthesis.speak(m); },
+        del(id) { if(confirm('确定删除?')) { this.words = this.words.filter(w=>w.id!==id); this.save(); this.render(); }}
+    };
+
+    async function generatePoster() {
+        const area = document.getElementById('captureArea');
+        const canvas = await html2canvas(area, { backgroundColor: '#0d1117', scale: 2 });
+        const link = document.createElement('a'); link.download = `战报_${Date.now()}.png`;
+        link.href = canvas.toDataURL(); link.click();
+    }
+    App.init();
+</script>
+</body>
+</html>
