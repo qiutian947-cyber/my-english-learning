@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>秋天的英语学习计划 | v51.5 终极同步版</title>
+    <title>秋天的英语学习计划 | v51.6 搜索增强版</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
@@ -35,6 +35,9 @@
         .panel { background: var(--card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 15px; overflow: hidden; }
         .input-row { display: flex; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
         input { background: transparent; border: none; padding: 14px; color: #fff; outline: none; flex: 1; font-size: 16px; min-width: 100px; }
+        .search-row { background: rgba(255,255,255,0.05); display: flex; align-items: center; padding: 0 10px; border-bottom: 1px solid var(--border); }
+        .search-row input { padding: 10px; font-size: 14px; color: var(--accent); }
+        
         .btn-tran { background: #21262d; color: var(--accent); border: none; border-left: 1px solid var(--border); padding: 0 15px; cursor: pointer; font-weight: bold; }
         .btn-main { background: var(--accent); color: #000; border: none; padding: 15px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
         
@@ -93,6 +96,9 @@
             <input type="text" id="eIn" placeholder="English">
             <button class="btn-tran" onclick="App.translate()">🌐 翻译</button>
             <input type="text" id="zIn" placeholder="中文">
+        </div>
+        <div class="search-row">
+            <input type="text" id="sIn" placeholder="🔍 搜索词库中英文..." oninput="App.render()">
         </div>
         <button class="btn-main" onclick="App.addWord()">💾 存入学习库</button>
     </div>
@@ -165,11 +171,15 @@
             const startOfD = new Date().setHours(0,0,0,0);
             const startOfW = new Date(now - (new Date().getDay()||7-1)*86400000).setHours(0,0,0,0);
             const startOfM = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+            const kw = document.getElementById('sIn').value.toLowerCase().trim();
 
             let cats = { new: [], wait: [], monitor: [], master: [] };
             let count = { d: 0, w: 0, m: 0 };
 
             this.words.forEach(w => {
+                // 搜索过滤逻辑
+                if(kw && !(w.e.toLowerCase().includes(kw) || w.z.includes(kw))) return;
+
                 if(w.s >= this.STAGES.length && w.m_t) {
                     if(w.m_t >= startOfD) count.d++;
                     if(w.m_t >= startOfW) count.w++;
@@ -201,11 +211,11 @@
 
         buildCard(w) {
             let body = '';
+            // 修改：不管新词还是待复盘，均显示中文(w.z)，要求输入英文
             if (this.activeTab === 'new' || this.activeTab === 'wait') {
-                const label = this.activeTab === 'new' ? w.e : w.z;
-                body = `<span class="en-txt">${label}</span>
+                body = `<span class="en-txt">${w.z}</span>
                         <div class="quiz-wrapper">
-                            <input class="quiz-in" id="q-${w.id}" placeholder="拼写单词..." onkeydown="if(event.keyCode==13) App.check(${w.id})">
+                            <input class="quiz-in" id="q-${w.id}" placeholder="拼写英文单词..." onkeydown="if(event.keyCode==13) App.check(${w.id})">
                             <button class="btn-confirm" onclick="App.check(${w.id})">确认</button>
                         </div>`;
             } else {
@@ -256,7 +266,7 @@
                     });
                     if(res.ok) alert("✅ 云端备份成功！");
                     else {
-                        localStorage.removeItem('gh_token_v51'); // Token失效则清除
+                        localStorage.removeItem('gh_token_v51');
                         alert("⚠️ Token 验证失败，请刷新重试。");
                     }
                 } else {
