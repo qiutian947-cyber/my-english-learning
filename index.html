@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>秋天的英语学习计划 | v51.8 查重屏蔽版</title>
+    <title>秋天的英语学习计划 | v56.0 智能去重版</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
@@ -50,15 +50,18 @@
         .word-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; padding: 15px; position: relative; transition: all 0.3s; }
         .en-txt { font-size: 1.3rem; font-weight: bold; color: var(--accent); display: block; word-break: break-all; }
         .zh-txt { font-size: 0.95rem; color: var(--sec); display: block; margin-top: 4px; }
-        .time-tag { font-size: 0.75rem; color: var(--warn); display: block; margin-top: 8px; font-family: monospace; }
         
-        /* 屏蔽状态 */
-        .word-card.typing .shield-en { opacity: 0; pointer-events: none; }
-        .shield-en { transition: opacity 0.2s; }
+        .stage-badge { position: absolute; top: 15px; right: 15px; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .quiz-wrapper { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .quiz-in { background: #000; border-bottom: 2px solid var(--accent); border-top:none; border-left:none; border-right:none; color: var(--accent); font-size: 18px; flex: 1; outline: none; padding: 8px; border-radius: 0; }
+        
+        .btn-listen { background: #58a6ff; color: white; border: none; padding: 15px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-listen.active { background: var(--critical); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        .quiz-wrapper { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-        .quiz-in { background: #000; border-bottom: 2px solid var(--accent); border-top:none; border-left:none; border-right:none; color: var(--accent); font-size: 18px; flex: 1; outline: none; padding: 5px; border-radius: 0; }
-        .btn-confirm { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+        .btn-confirm-sm { background: var(--border); color: var(--sec); border: none; padding: 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
+
+        .transcript-hint { font-size: 0.8rem; color: var(--warn); font-style: italic; min-height: 1.2rem; }
         
         .act-group { display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 12px; }
         .i-btn { background: none; border: none; color: var(--sec); cursor: pointer; font-size: 0.85rem; padding: 5px 0; }
@@ -74,24 +77,22 @@
     </div>
 
     <div class="stats-bar">
-        <div class="stat-item"><span class="lab">今日目标(10)</span><span class="val" id="d_val">0</span><div class="pg-bg"><div class="pg-fill" id="d_pg"></div></div></div>
-        <div class="stat-item"><span class="lab">本周目标(70)</span><span class="val" id="w_val">0</span><div class="pg-bg"><div class="pg-fill" id="w_pg"></div></div></div>
-        <div class="stat-item"><span class="lab">本月目标(300)</span><span class="val" id="m_val">0</span><div class="pg-bg"><div class="pg-fill" id="m_pg"></div></div></div>
+        <div class="stat-item"><span class="lab">今日目标</span><span class="val" id="d_val">0</span><div class="pg-bg"><div class="pg-fill" id="d_pg"></div></div></div>
+        <div class="stat-item"><span class="lab">本周目标</span><span class="val" id="w_val">0</span><div class="pg-bg"><div class="pg-fill" id="w_pg"></div></div></div>
+        <div class="stat-item"><span class="lab">月度目标</span><span class="val" id="m_val">0</span><div class="pg-bg"><div class="pg-fill" id="m_pg"></div></div></div>
     </div>
 
     <div class="tool-bar">
         <div class="row">
-            <input type="password" id="syncId" class="sync-input" placeholder="点击同步按钮将提示输入 Token" readonly>
-        </div>
-        <div class="row">
+            <input type="password" id="syncId" class="sync-input" placeholder="Token 加密存储" readonly>
             <button onclick="App.sync('push')" class="btn-tool" style="background:var(--success)">💾 云端备份</button>
-            <button onclick="App.sync('pull')" class="btn-tool" style="background:var(--accent); color:black">📥 同步下载</button>
-            <button onclick="generatePoster()" class="btn-tool" style="background:var(--gradient)">📸 生成战报</button>
+            <button onclick="App.sync('pull')" class="btn-tool" style="background:var(--accent); color:black">📥 下载同步</button>
         </div>
         <div class="row" style="margin-bottom:0; border-top: 1px solid #30363d; padding-top: 8px;">
-            <button onclick="App.exportJSON()" class="btn-tool" style="background:#444">📤 导出本地</button>
-            <button onclick="document.getElementById('fileIn').click()" class="btn-tool" style="background:#444">📥 导入恢复</button>
+            <button onclick="App.exportJSON()" class="btn-tool" style="background:#444">📤 导出</button>
+            <button onclick="document.getElementById('fileIn').click()" class="btn-tool" style="background:#444">📥 导入</button>
             <input type="file" id="fileIn" style="display:none" onchange="App.importJSON(this)">
+            <button onclick="generatePoster()" class="btn-tool" style="background:var(--gradient)">📸 战报</button>
         </div>
     </div>
 
@@ -102,7 +103,7 @@
             <input type="text" id="zIn" placeholder="中文">
         </div>
         <div class="search-row">
-            <input type="text" id="sIn" placeholder="🔍 搜索词库中英文..." oninput="App.render()">
+            <input type="text" id="sIn" placeholder="🔍 搜索词库..." oninput="App.render()">
         </div>
         <button class="btn-main" onclick="App.addWord()">💾 存入学习库</button>
     </div>
@@ -113,31 +114,40 @@
 
 <script>
     const App = {
-        STAGES: [5, 30, 720, 1440, 2880, 5760, 10080, 21600],
+        STAGES: [0, 30, 720, 1440, 2880, 5760, 10080, 20160],
         PLAN: { d: 10, w: 70, m: 300 },
         GIST_ID: "682503e0daf82738d418a9731bef4302", 
         words: JSON.parse(localStorage.getItem('autumn_plan_v50')) || [],
         activeTab: 'new',
+        recognition: null,
 
         init() {
             setInterval(() => this.tick(), 1000);
+            this.initSpeech();
             this.render();
             this.updateTokenDisplay();
         },
 
+        initSpeech() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (Speech) {
+                this.recognition = new Speech();
+                this.recognition.lang = 'en-US';
+                this.recognition.continuous = false;
+                this.recognition.interimResults = false;
+            }
+        },
+
         updateTokenDisplay() {
             const token = localStorage.getItem('gh_token_v51');
-            document.getElementById('syncId').value = token ? "******** (已安全加密保存)" : "";
+            document.getElementById('syncId').value = token ? "********" : "未绑定";
         },
 
         async getAuthToken() {
             let token = localStorage.getItem('gh_token_v51');
             if (!token) {
-                token = prompt("请输入你的 GitHub Personal Access Token:");
-                if (token) {
-                    localStorage.setItem('gh_token_v51', token.trim());
-                    this.updateTokenDisplay();
-                }
+                token = prompt("请输入 GitHub Token:");
+                if (token) { localStorage.setItem('gh_token_v51', token.trim()); this.updateTokenDisplay(); }
             }
             return token;
         },
@@ -157,20 +167,21 @@
                 const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${isEn?'zh-CN':'en'}&dt=t&q=${encodeURIComponent(q)}`);
                 const data = await res.json();
                 if(isEn) z.value = data[0][0][0]; else e.value = data[0][0][0];
-            } catch (err) { alert("翻译服务繁忙"); }
+            } catch (err) { alert("翻译繁忙"); }
         },
 
         addWord() {
             const e = document.getElementById('eIn').value.trim(), z = document.getElementById('zIn').value.trim();
             if(!e || !z) return;
             
-            // 重复检测
-            if (this.words.some(w => w.e.toLowerCase() === e.toLowerCase())) {
-                alert(`单词 "${e}" 已在词库中，系统已自动跳过。`);
+            // --- 查重逻辑 | Duplicate Check ---
+            const isDuplicate = this.words.some(w => w.e.toLowerCase() === e.toLowerCase());
+            if (isDuplicate) {
+                alert(`⚠️ 单词 "${e}" 已在库中，请勿重复添加。`);
                 return;
             }
-
-            this.words.push({ id: Date.now(), e, z, s: 0, n: null, m_t: null });
+            
+            this.words.push({ id: Date.now(), e, z, s: 0, c: 0, n: null, m_t: null });
             this.save(); this.render();
             document.getElementById('eIn').value = ''; document.getElementById('zIn').value = '';
         },
@@ -189,13 +200,13 @@
 
             this.words.forEach(w => {
                 if(kw && !(w.e.toLowerCase().includes(kw) || w.z.includes(kw))) return;
-                if(w.s >= this.STAGES.length && w.m_t) {
+                if(w.s >= this.STAGES.length) {
                     if(w.m_t >= startOfD) count.d++;
                     if(w.m_t >= startOfW) count.w++;
                     if(w.m_t >= startOfM) count.m++;
                     cats.master.push(w);
                 } else {
-                    if(!w.n) cats.new.push(w);
+                    if(w.n === null) cats.new.push(w);
                     else if(now >= w.n) cats.wait.push(w);
                     else cats.monitor.push(w);
                 }
@@ -209,7 +220,7 @@
             updateUI('w', count.w, this.PLAN.w);
             updateUI('m', count.m, this.PLAN.m);
 
-            const config = [{id:'new',l:'新词库'}, {id:'wait',l:'待复盘'}, {id:'monitor',l:'监控中'}, {id:'master',l:'已掌握'}];
+            const config = [{id:'new',l:'新词'}, {id:'wait',l:'待学'}, {id:'monitor',l:'监测'}, {id:'master',l:'掌握'}];
             document.getElementById('catTabs').innerHTML = config.map(c => `
                 <div class="tab-btn ${this.activeTab===c.id?'active':''}" onclick="App.activeTab='${c.id}';App.render();">
                     <b>${cats[c.id].length}</b><span>${c.l}</span>
@@ -220,58 +231,88 @@
 
         buildCard(w) {
             let body = '';
-            // 新增词库：中文在上，英文在下（默写时屏蔽英文）
-            if (this.activeTab === 'new') {
-                body = `<span class="en-txt" style="color:var(--text); margin-bottom:4px;">${w.z}</span>
-                        <span class="zh-txt shield-en" style="font-size:1rem; color:var(--sec);">${w.e}</span>
-                        <div class="quiz-wrapper">
-                            <input class="quiz-in" id="q-${w.id}" placeholder="默写英文..." 
-                                onfocus="this.closest('.word-card').classList.add('typing')" 
-                                onblur="this.closest('.word-card').classList.remove('typing')"
-                                onkeydown="if(event.keyCode==13) App.check(${w.id})">
-                            <button class="btn-confirm" onclick="App.check(${w.id})">确认</button>
-                        </div>`;
-            } 
-            // 待复盘：屏蔽英语，只显示中文
-            else if (this.activeTab === 'wait') {
-                body = `<span class="en-txt">${w.z}</span>
-                        <div class="quiz-wrapper">
-                            <input class="quiz-in" id="q-${w.id}" placeholder="拼写英文单词..." onkeydown="if(event.keyCode==13) App.check(${w.id})">
-                            <button class="btn-confirm" onclick="App.check(${w.id})">确认</button>
-                        </div>`;
-            } 
-            else {
+            const isFinal = (w.s === this.STAGES.length - 1);
+            const stageName = isFinal ? "🏆 终极默写" : `🗣️ 阶段 ${w.s + 1} (${w.c + 1}/10)`;
+
+            if (this.activeTab === 'new' || this.activeTab === 'wait') {
+                if (isFinal) {
+                    body = `<div class="stage-badge">${stageName}</div>
+                            <span class="en-txt" style="color:var(--text);">${w.z}</span>
+                            <div class="quiz-wrapper">
+                                <input class="quiz-in" id="q-${w.id}" placeholder="拼写单词..." onkeydown="if(event.keyCode==13) App.check(${w.id}, false)">
+                                <button class="btn-main" onclick="App.check(${w.id}, false)">确定</button>
+                            </div>`;
+                } else {
+                    body = `<div class="stage-badge">${stageName}</div>
+                            <span class="en-txt">${w.e}</span>
+                            <span class="zh-txt">${w.z}</span>
+                            <div class="quiz-wrapper">
+                                <div class="transcript-hint" id="t-${w.id}">点击开始识别并大声朗读...</div>
+                                <button class="btn-listen" id="btn-L-${w.id}" onclick="App.startListening(${w.id})">🎤 识别并朗读</button>
+                                <button class="btn-confirm-sm" onclick="App.check(${w.id}, true)">手动确认已读准 (若识别失效)</button>
+                            </div>`;
+                }
+            } else {
                 const diff = w.n - Date.now();
                 const timeStr = diff > 0 ? `${Math.floor(diff/60000)}m后` : '逾期';
-                body = `<span class="en-txt">${w.e}</span><span class="zh-txt">${w.z}</span>
+                body = `<div class="stage-badge" style="opacity:0.6">${isFinal ? '待默写' : '强化中'}</div>
+                        <span class="en-txt">${w.e}</span><span class="zh-txt">${w.z}</span>
                         <span class="time-tag">⏲️ ${this.activeTab==='monitor'?timeStr:'永久掌握'}</span>`;
             }
             return `<div class="word-card">${body}
                 <div class="act-group">
                     <button class="i-btn" onclick="App.say('${w.e}')">🔊 发音</button>
-                    <button class="i-btn" style="color:var(--warn)" onclick="App.peek(${w.id},'${w.e}')">👁️ 偷看</button>
                     <button class="i-btn" style="color:var(--critical);margin-left:auto" onclick="App.del(${w.id})">🗑️ 删除</button>
                 </div></div>`;
         },
 
-        peek(id, correct) {
-            const input = document.getElementById(`q-${id}`);
-            if(!input) return;
-            input.value = correct; input.style.color = 'var(--warn)';
-            setTimeout(() => { input.value = ""; input.style.color = 'var(--accent)'; input.focus(); }, 1200);
+        startListening(id) {
+            if (!this.recognition) return alert("当前浏览器不支持语音识别，请尝试 Chrome 或 Edge。");
+            const word = this.words.find(w => w.id === id);
+            const btn = document.getElementById(`btn-L-${id}`);
+            const hint = document.getElementById(`t-${id}`);
+            
+            this.recognition.onstart = () => {
+                btn.classList.add('active'); btn.innerText = "🔴 正在倾听...";
+            };
+            
+            this.recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.toLowerCase().replace(/[.,!?;]/g, "").trim();
+                hint.innerText = `识别到: "${transcript}"`;
+                if (transcript.includes(word.e.toLowerCase().trim())) {
+                    hint.style.color = "var(--success)";
+                    setTimeout(() => App.check(id, true), 800);
+                } else {
+                    hint.style.color = "var(--critical)";
+                    btn.classList.remove('active'); btn.innerText = "🎤 没听清，再试一次";
+                }
+            };
+
+            this.recognition.onerror = () => {
+                btn.classList.remove('active'); btn.innerText = "🎤 识别错误，请重试";
+            };
+
+            this.recognition.onend = () => { btn.classList.remove('active'); };
+            this.recognition.start();
         },
 
-        check(id) {
-            const input = document.getElementById(`q-${id}`), word = this.words.find(w => w.id === id);
-            if(input.value.toLowerCase().trim() === word.e.toLowerCase().trim()) {
-                word.s++; 
-                word.n = Date.now() + this.STAGES[Math.min(word.s-1, this.STAGES.length-1)] * 60000;
-                if(word.s >= this.STAGES.length) word.m_t = Date.now();
-                this.save(); this.render();
+        check(id, isReadMode) {
+            const word = this.words.find(w => w.id === id);
+            if (!isReadMode) {
+                const input = document.getElementById(`q-${id}`);
+                if (input.value.toLowerCase().trim() !== word.e.toLowerCase().trim()) {
+                    input.style.borderBottomColor = 'var(--critical)';
+                    setTimeout(() => input.style.borderBottomColor = 'var(--accent)', 1000);
+                    return;
+                }
+                word.s++; word.m_t = Date.now();
             } else {
-                input.style.borderBottomColor = 'var(--critical)';
-                setTimeout(() => input.style.borderBottomColor = 'var(--accent)', 1000);
+                this.say(word.e);
+                word.c++;
+                if (word.c >= 10) { word.c = 0; word.s++; word.n = Date.now() + this.STAGES[word.s] * 60000; }
+                else { word.n = Date.now() + 1 * 60000; }
             }
+            this.save(); this.render();
         },
 
         async sync(type) {
@@ -280,31 +321,32 @@
             const url = `https://api.github.com/gists/${this.GIST_ID}`;
             try {
                 if(type === 'push') {
-                    const res = await fetch(url, {
+                    await fetch(url, {
                         method: 'PATCH',
                         headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify({ files: { "words.json": { content: JSON.stringify(this.words) } } })
                     });
-                    if(res.ok) alert("✅ 云端备份成功！");
-                    else { localStorage.removeItem('gh_token_v51'); alert("⚠️ Token 验证失败。"); }
+                    alert("✅ 备份成功");
                 } else {
                     const res = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
                     const data = await res.json();
-                    if(data.files && data.files["words.json"]) {
-                        this.words = JSON.parse(data.files["words.json"].content);
-                        this.save(); this.render();
-                        alert("✅ 📥 同步下载成功！");
+                    if(data.files["words.json"]) { 
+                        const remoteData = JSON.parse(data.files["words.json"].content);
+                        // 合并同步时的去重逻辑
+                        const existingLower = this.words.map(w => w.e.toLowerCase());
+                        const newData = remoteData.filter(w => !existingLower.includes(w.e.toLowerCase()));
+                        this.words = [...this.words, ...newData];
+                        this.save(); this.render(); 
+                        alert(`✅ 同步成功！合并了 ${newData.length} 个新词条。`); 
                     }
                 }
-            } catch(e) { alert("⚠️ 网络错误。"); }
+            } catch(e) { alert("网络错误"); }
         },
 
         exportJSON() {
             const blob = new Blob([JSON.stringify(this.words)], {type: "application/json"});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `秋天词库备份_${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `词库_${new Date().toISOString().slice(0,10)}.json`; a.click();
         },
 
         importJSON(input) {
@@ -312,20 +354,33 @@
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if(Array.isArray(data)) { this.words = data; this.save(); this.render(); alert("✅ 导入成功！"); }
-                } catch(err) { alert("❌ 导入失败"); }
+                    if(Array.isArray(data)) {
+                        // --- 导入去重逻辑 | Import Deduplication ---
+                        const existingLower = this.words.map(w => w.e.toLowerCase());
+                        const newWords = data.filter(w => !existingLower.includes(w.e.toLowerCase()));
+                        const dupCount = data.length - newWords.length;
+                        
+                        this.words = [...this.words, ...newWords];
+                        this.save(); this.render();
+                        alert(`✅ 导入完成！新增: ${newWords.length}，过滤重复: ${dupCount}`);
+                    }
+                } catch(err) { alert("导入失败"); }
             };
             reader.readAsText(input.files[0]);
         },
 
-        say(t) { const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; window.speechSynthesis.speak(m); },
-        del(id) { if(confirm('确定删除?')) { this.words = this.words.filter(w=>w.id!==id); this.save(); this.render(); }}
+        say(t) { 
+            window.speechSynthesis.cancel();
+            const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; 
+            window.speechSynthesis.speak(m); 
+        },
+        del(id) { if(confirm('删除?')) { this.words = this.words.filter(w=>w.id!==id); this.save(); this.render(); }}
     };
 
     async function generatePoster() {
         const area = document.getElementById('captureArea');
         const canvas = await html2canvas(area, { backgroundColor: '#0d1117', scale: 2 });
-        const link = document.createElement('a'); link.download = `战报_${Date.now()}.png`;
+        const link = document.createElement('a'); link.download = `战报.png`;
         link.href = canvas.toDataURL(); link.click();
     }
     App.init();
