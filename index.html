@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>秋天的英语学习计划 | v51.6 搜索增强版</title>
+    <title>秋天的英语学习计划 | v51.8 查重屏蔽版</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
@@ -47,11 +47,15 @@
         .tab-btn b { display: block; font-size: 1.1rem; }
         .tab-btn span { font-size: 0.6rem; color: var(--sec); }
 
-        .word-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; padding: 15px; position: relative; }
+        .word-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; padding: 15px; position: relative; transition: all 0.3s; }
         .en-txt { font-size: 1.3rem; font-weight: bold; color: var(--accent); display: block; word-break: break-all; }
         .zh-txt { font-size: 0.95rem; color: var(--sec); display: block; margin-top: 4px; }
         .time-tag { font-size: 0.75rem; color: var(--warn); display: block; margin-top: 8px; font-family: monospace; }
         
+        /* 屏蔽状态 */
+        .word-card.typing .shield-en { opacity: 0; pointer-events: none; }
+        .shield-en { transition: opacity 0.2s; }
+
         .quiz-wrapper { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
         .quiz-in { background: #000; border-bottom: 2px solid var(--accent); border-top:none; border-left:none; border-right:none; color: var(--accent); font-size: 18px; flex: 1; outline: none; padding: 5px; border-radius: 0; }
         .btn-confirm { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
@@ -129,7 +133,7 @@
         async getAuthToken() {
             let token = localStorage.getItem('gh_token_v51');
             if (!token) {
-                token = prompt("请输入你的 GitHub Personal Access Token (仅存放在当前设备浏览器):");
+                token = prompt("请输入你的 GitHub Personal Access Token:");
                 if (token) {
                     localStorage.setItem('gh_token_v51', token.trim());
                     this.updateTokenDisplay();
@@ -159,6 +163,13 @@
         addWord() {
             const e = document.getElementById('eIn').value.trim(), z = document.getElementById('zIn').value.trim();
             if(!e || !z) return;
+            
+            // 重复检测
+            if (this.words.some(w => w.e.toLowerCase() === e.toLowerCase())) {
+                alert(`单词 "${e}" 已在词库中，系统已自动跳过。`);
+                return;
+            }
+
             this.words.push({ id: Date.now(), e, z, s: 0, n: null, m_t: null });
             this.save(); this.render();
             document.getElementById('eIn').value = ''; document.getElementById('zIn').value = '';
@@ -177,9 +188,7 @@
             let count = { d: 0, w: 0, m: 0 };
 
             this.words.forEach(w => {
-                // 搜索过滤逻辑
                 if(kw && !(w.e.toLowerCase().includes(kw) || w.z.includes(kw))) return;
-
                 if(w.s >= this.STAGES.length && w.m_t) {
                     if(w.m_t >= startOfD) count.d++;
                     if(w.m_t >= startOfW) count.w++;
@@ -211,14 +220,27 @@
 
         buildCard(w) {
             let body = '';
-            // 修改：不管新词还是待复盘，均显示中文(w.z)，要求输入英文
-            if (this.activeTab === 'new' || this.activeTab === 'wait') {
+            // 新增词库：中文在上，英文在下（默写时屏蔽英文）
+            if (this.activeTab === 'new') {
+                body = `<span class="en-txt" style="color:var(--text); margin-bottom:4px;">${w.z}</span>
+                        <span class="zh-txt shield-en" style="font-size:1rem; color:var(--sec);">${w.e}</span>
+                        <div class="quiz-wrapper">
+                            <input class="quiz-in" id="q-${w.id}" placeholder="默写英文..." 
+                                onfocus="this.closest('.word-card').classList.add('typing')" 
+                                onblur="this.closest('.word-card').classList.remove('typing')"
+                                onkeydown="if(event.keyCode==13) App.check(${w.id})">
+                            <button class="btn-confirm" onclick="App.check(${w.id})">确认</button>
+                        </div>`;
+            } 
+            // 待复盘：屏蔽英语，只显示中文
+            else if (this.activeTab === 'wait') {
                 body = `<span class="en-txt">${w.z}</span>
                         <div class="quiz-wrapper">
                             <input class="quiz-in" id="q-${w.id}" placeholder="拼写英文单词..." onkeydown="if(event.keyCode==13) App.check(${w.id})">
                             <button class="btn-confirm" onclick="App.check(${w.id})">确认</button>
                         </div>`;
-            } else {
+            } 
+            else {
                 const diff = w.n - Date.now();
                 const timeStr = diff > 0 ? `${Math.floor(diff/60000)}m后` : '逾期';
                 body = `<span class="en-txt">${w.e}</span><span class="zh-txt">${w.z}</span>
@@ -255,7 +277,6 @@
         async sync(type) {
             const token = await this.getAuthToken();
             if(!token) return;
-
             const url = `https://api.github.com/gists/${this.GIST_ID}`;
             try {
                 if(type === 'push') {
@@ -265,10 +286,7 @@
                         body: JSON.stringify({ files: { "words.json": { content: JSON.stringify(this.words) } } })
                     });
                     if(res.ok) alert("✅ 云端备份成功！");
-                    else {
-                        localStorage.removeItem('gh_token_v51');
-                        alert("⚠️ Token 验证失败，请刷新重试。");
-                    }
+                    else { localStorage.removeItem('gh_token_v51'); alert("⚠️ Token 验证失败。"); }
                 } else {
                     const res = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
                     const data = await res.json();
@@ -278,7 +296,7 @@
                         alert("✅ 📥 同步下载成功！");
                     }
                 }
-            } catch(e) { alert("⚠️ 网络错误或 Token 无效。"); }
+            } catch(e) { alert("⚠️ 网络错误。"); }
         },
 
         exportJSON() {
@@ -294,11 +312,8 @@
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if(Array.isArray(data)) {
-                        this.words = data; this.save(); this.render();
-                        alert("✅ 本地数据导入成功！");
-                    }
-                } catch(err) { alert("❌ 导入失败：文件格式不正确"); }
+                    if(Array.isArray(data)) { this.words = data; this.save(); this.render(); alert("✅ 导入成功！"); }
+                } catch(err) { alert("❌ 导入失败"); }
             };
             reader.readAsText(input.files[0]);
         },
