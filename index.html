@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>秋天的英语学习计划 | v54.0 增强版</title>
+    <title>秋天的英语学习计划 | v58.0 双语短句版</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
@@ -50,17 +50,26 @@
         .word-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; padding: 15px; position: relative; transition: all 0.3s; }
         .en-txt { font-size: 1.3rem; font-weight: bold; color: var(--accent); display: block; word-break: break-all; }
         .zh-txt { font-size: 0.95rem; color: var(--sec); display: block; margin-top: 4px; }
-        .time-tag { font-size: 0.75rem; color: var(--warn); display: block; margin-top: 8px; font-family: monospace; }
-        .stage-badge { position: absolute; top: 15px; right: 15px; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid var(--accent); }
         
-        .quiz-wrapper { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-        .quiz-in { background: #000; border-bottom: 2px solid var(--accent); border-top:none; border-left:none; border-right:none; color: var(--accent); font-size: 18px; flex: 1; outline: none; padding: 5px; border-radius: 0; }
-        .btn-confirm { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
-        .btn-confirm.full { width: 100%; margin-top: 10px; padding: 12px; }
-        .btn-manual { background: #21262d; border: 1px solid var(--border); color: var(--sec); flex: 1; }
+        .ex-box { margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .ex-content { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .ex-en { font-size: 0.85rem; color: var(--text); font-style: italic; word-break: break-word; }
+        .ex-zh { font-size: 0.75rem; color: var(--sec); word-break: break-word; }
+        .btn-ex-say { background: rgba(0, 212, 255, 0.1); border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.7rem; white-space: nowrap; margin-top: 2px; }
 
+        .stage-badge { position: absolute; top: 15px; right: 15px; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .quiz-wrapper { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .quiz-in { background: #000; border-bottom: 2px solid var(--accent); border-top:none; border-left:none; border-right:none; color: var(--accent); font-size: 18px; flex: 1; outline: none; padding: 8px; border-radius: 0; }
+        
+        .btn-listen { background: #58a6ff; color: white; border: none; padding: 15px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-listen.active { background: var(--critical); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .btn-confirm-sm { background: var(--border); color: var(--sec); border: none; padding: 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
+        .transcript-hint { font-size: 0.8rem; color: var(--warn); font-style: italic; min-height: 1.2rem; }
         .act-group { display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 12px; }
         .i-btn { background: none; border: none; color: var(--sec); cursor: pointer; font-size: 0.85rem; padding: 5px 0; }
+        .time-tag { font-size: 0.7rem; color: var(--sec); display: block; margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -69,41 +78,43 @@
     <header><h1>秋天的英语学习计划</h1></header>
     <div class="clock-box">
         <div id="liveClock">00:00:00</div>
-        <div id="liveDate">2026年03月29日</div>
+        <div id="liveDate">2026年03月30日</div>
     </div>
 
     <div class="stats-bar">
-        <div class="stat-item"><span class="lab">今日掌握(10)</span><span class="val" id="d_val">0</span><div class="pg-bg"><div class="pg-fill" id="d_pg"></div></div></div>
-        <div class="stat-item"><span class="lab">本周目标(70)</span><span class="val" id="w_val">0</span><div class="pg-bg"><div class="pg-fill" id="w_pg"></div></div></div>
-        <div class="stat-item"><span class="lab">月度目标(300)</span><span class="val" id="m_val">0</span><div class="pg-bg"><div class="pg-fill" id="m_pg"></div></div></div>
+        <div class="stat-item"><span class="lab">今日目标</span><span class="val" id="d_val">0</span><div class="pg-bg"><div class="pg-fill" id="d_pg"></div></div></div>
+        <div class="stat-item"><span class="lab">本周目标</span><span class="val" id="w_val">0</span><div class="pg-bg"><div class="pg-fill" id="w_pg"></div></div></div>
+        <div class="stat-item"><span class="lab">月度目标</span><span class="val" id="m_val">0</span><div class="pg-bg"><div class="pg-fill" id="m_pg"></div></div></div>
     </div>
 
     <div class="tool-bar">
         <div class="row">
-            <input type="password" id="syncId" class="sync-input" placeholder="同步 Token 已加密保存" readonly>
-        </div>
-        <div class="row">
+            <input type="password" id="syncId" class="sync-input" placeholder="Token 加密存储" readonly>
             <button onclick="App.sync('push')" class="btn-tool" style="background:var(--success)">💾 云端备份</button>
-            <button onclick="App.sync('pull')" class="btn-tool" style="background:var(--accent); color:black">📥 云端同步</button>
+            <button onclick="App.sync('pull')" class="btn-tool" style="background:var(--accent); color:black">📥 下载同步</button>
         </div>
-        <div class="row">
-            <button onclick="App.exportData()" class="btn-tool" style="background:#444">📤 本地导出</button>
-            <button onclick="document.getElementById('fileIn').click()" class="btn-tool" style="background:#444">📥 本地导入</button>
-            <input type="file" id="fileIn" style="display:none" onchange="App.importData(event)">
-            <button onclick="generatePoster()" class="btn-tool" style="background:var(--gradient)">📸 生成战报</button>
+        <div class="row" style="margin-bottom:0; border-top: 1px solid #30363d; padding-top: 8px;">
+            <button onclick="App.exportJSON()" class="btn-tool" style="background:#444">📤 导出</button>
+            <button onclick="document.getElementById('fileIn').click()" class="btn-tool" style="background:#444">📥 导入</button>
+            <input type="file" id="fileIn" style="display:none" onchange="App.importJSON(this)">
+            <button onclick="generatePoster()" class="btn-tool" style="background:var(--gradient)">📸 战报</button>
         </div>
     </div>
 
     <div class="panel">
         <div class="input-row">
-            <input type="text" id="eIn" placeholder="English">
+            <input type="text" id="eIn" placeholder="English Word">
             <button class="btn-tran" onclick="App.translate()">🌐 翻译</button>
-            <input type="text" id="zIn" placeholder="中文">
+            <input type="text" id="zIn" placeholder="中文含义">
+        </div>
+        <div class="input-row" style="border-top: none; background: rgba(0,212,255,0.03);">
+            <input type="text" id="exIn" placeholder="English phrase...">
+            <input type="text" id="exZhIn" placeholder="短句中文翻译...">
         </div>
         <div class="search-row">
-            <input type="text" id="sIn" placeholder="🔍 搜索词库中英文..." oninput="App.render()">
+            <input type="text" id="sIn" placeholder="🔍 搜索词库..." oninput="App.render()">
         </div>
-        <button class="btn-main" onclick="App.addWord()">💾 存入学习库</button>
+        <button class="btn-main" onclick="App.addWord()" id="addBtn">💾 存入学习库</button>
     </div>
 
     <div class="cat-tabs" id="catTabs"></div>
@@ -112,31 +123,38 @@
 
 <script>
     const App = {
-        STAGES: [1,1,1,1,1,1,1,1,1,1, 30, 720, 1440, 2880, 5760, 10080],
+        STAGES: [0, 30, 720, 1440, 2880, 5760, 10080, 20160],
         PLAN: { d: 10, w: 70, m: 300 },
         GIST_ID: "682503e0daf82738d418a9731bef4302", 
         words: JSON.parse(localStorage.getItem('autumn_plan_v50')) || [],
         activeTab: 'new',
+        recognition: null,
 
         init() {
             setInterval(() => this.tick(), 1000);
+            this.initSpeech();
             this.render();
             this.updateTokenDisplay();
         },
 
+        initSpeech() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (Speech) {
+                this.recognition = new Speech();
+                this.recognition.lang = 'en-US';
+            }
+        },
+
         updateTokenDisplay() {
             const token = localStorage.getItem('gh_token_v51');
-            document.getElementById('syncId').value = token ? "******** (已安全加密保存)" : "";
+            document.getElementById('syncId').value = token ? "********" : "未绑定";
         },
 
         async getAuthToken() {
             let token = localStorage.getItem('gh_token_v51');
             if (!token) {
-                token = prompt("请输入你的 GitHub Personal Access Token:");
-                if (token) {
-                    localStorage.setItem('gh_token_v51', token.trim());
-                    this.updateTokenDisplay();
-                }
+                token = prompt("请输入 GitHub Token:");
+                if (token) { localStorage.setItem('gh_token_v51', token.trim()); this.updateTokenDisplay(); }
             }
             return token;
         },
@@ -156,53 +174,30 @@
                 const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${isEn?'zh-CN':'en'}&dt=t&q=${encodeURIComponent(q)}`);
                 const data = await res.json();
                 if(isEn) z.value = data[0][0][0]; else e.value = data[0][0][0];
-            } catch (err) { alert("翻译服务繁忙"); }
+            } catch (err) { alert("翻译超时"); }
         },
 
         addWord() {
-            const e = document.getElementById('eIn').value.trim(), z = document.getElementById('zIn').value.trim();
+            const e = document.getElementById('eIn').value.trim();
+            const z = document.getElementById('zIn').value.trim();
+            const ex = document.getElementById('exIn').value.trim();
+            const exZh = document.getElementById('exZhIn').value.trim();
             if(!e || !z) return;
-            // 查重功能 | Duplicate Check
+            
             if (this.words.some(w => w.e.toLowerCase() === e.toLowerCase())) {
-                alert(`⚠️ 词库中已存在 "${e}"，请勿重复添加。`);
-                return;
+                alert(`"${e}" 已存在`); return;
             }
-            this.words.push({ id: Date.now(), e, z, s: 0, n: null, m_t: null });
+
+            this.words.push({ id: Date.now(), e, z, ex, ex_z: exZh, s: 0, c: 0, n: null, m_t: null });
             this.save(); this.render();
-            document.getElementById('eIn').value = ''; document.getElementById('zIn').value = '';
+            
+            document.getElementById('eIn').value = ''; 
+            document.getElementById('zIn').value = '';
+            document.getElementById('exIn').value = '';
+            document.getElementById('exZhIn').value = '';
         },
 
         save() { localStorage.setItem('autumn_plan_v50', JSON.stringify(this.words)); },
-
-        // 本地导出 | Export
-        exportData() {
-            const blob = new Blob([JSON.stringify(this.words, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `autumn_words_${new Date().toLocaleDateString()}.json`;
-            a.click();
-        },
-
-        // 本地导入 | Import
-        importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        // 简单合并并去重
-                        const existingEn = new Set(this.words.map(w => w.e.toLowerCase()));
-                        const newWords = imported.filter(w => !existingEn.has(w.e.toLowerCase()));
-                        this.words = [...this.words, ...newWords];
-                        this.save(); this.render();
-                        alert(`成功导入 ${newWords.length} 个新词！`);
-                    }
-                } catch (err) { alert("文件格式错误！"); }
-            };
-            reader.readAsText(file);
-        },
 
         render() {
             const now = Date.now();
@@ -222,23 +217,21 @@
                     if(w.m_t >= startOfM) count.m++;
                     cats.master.push(w);
                 } else {
-                    if(!w.n) cats.new.push(w);
+                    if(w.n === null) cats.new.push(w);
                     else if(now >= w.n) cats.wait.push(w);
                     else cats.monitor.push(w);
                 }
             });
 
             const updateUI = (key, cur, tar) => {
-                const elVal = document.getElementById(`${key}_val`);
-                const elPg = document.getElementById(`${key}_pg`);
-                if(elVal) elVal.innerText = cur;
-                if(elPg) elPg.style.width = Math.min((cur/tar)*100, 100) + '%';
+                document.getElementById(`${key}_val`).innerText = cur;
+                document.getElementById(`${key}_pg`).style.width = Math.min((cur/tar)*100, 100) + '%';
             };
             updateUI('d', count.d, this.PLAN.d);
             updateUI('w', count.w, this.PLAN.w);
             updateUI('m', count.m, this.PLAN.m);
 
-            const config = [{id:'new',l:'新词库'}, {id:'wait',l:'待复盘'}, {id:'monitor',l:'监控中'}, {id:'master',l:'已掌握'}];
+            const config = [{id:'new',l:'新词'}, {id:'wait',l:'待学'}, {id:'monitor',l:'监测'}, {id:'master',l:'掌握'}];
             document.getElementById('catTabs').innerHTML = config.map(c => `
                 <div class="tab-btn ${this.activeTab===c.id?'active':''}" onclick="App.activeTab='${c.id}';App.render();">
                     <b>${cats[c.id].length}</b><span>${c.l}</span>
@@ -249,169 +242,144 @@
 
         buildCard(w) {
             let body = '';
-            const isDrill = w.s < 10;
-            const isFinal = w.s === this.STAGES.length - 1;
-
-            const badge = isDrill ? `<div class="stage-badge">🎤 语音强化 ${w.s+1}/10</div>` : 
-                          isFinal ? `<div class="stage-badge" style="border-color:var(--success); color:var(--success)">🏆 终极默写</div>` :
-                          `<div class="stage-badge" style="border-color:var(--sec); color:var(--sec)">♻️ 复习 ${w.s-9}</div>`;
+            const isFinal = (w.s === this.STAGES.length - 1);
+            const stageName = isFinal ? "🏆 终极默写" : `🗣️ 阶段 ${w.s + 1} (${w.c + 1}/10)`;
+            
+            const exHtml = w.ex ? `
+                <div class="ex-box">
+                    <div class="ex-content">
+                        <div class="ex-en">${w.ex}</div>
+                        <div class="ex-zh">${w.ex_z || ''}</div>
+                    </div>
+                    <button class="btn-ex-say" onclick="App.sayEx(${w.id})">🔊 朗读</button>
+                </div>` : '';
 
             if (this.activeTab === 'new' || this.activeTab === 'wait') {
-                if (isDrill) {
-                    body = `${badge}
-                            <span class="en-txt" style="font-size:1.6rem; margin-bottom:8px;">${w.e}</span>
-                            <span class="zh-txt" style="margin-bottom:12px;">${w.z}</span>
-                            <div style="display:flex; gap:8px; margin-top:10px;">
-                                <button id="v-${w.id}" class="btn-confirm" style="flex:2; padding:12px;" onclick="App.startListening(${w.id})">🎤 录音识别</button>
-                                <button class="btn-confirm btn-manual" onclick="App.check(${w.id}, 'drill')">👌 手动确认</button>
-                            </div>`;
-                } else if (isFinal) {
-                    body = `${badge}<span class="en-txt" style="color:var(--text);">${w.z}</span>
+                if (isFinal) {
+                    body = `<div class="stage-badge">${stageName}</div>
+                            <span class="en-txt" style="color:var(--text);">${w.z}</span>
                             <div class="quiz-wrapper">
-                                <input class="quiz-in" id="q-${w.id}" placeholder="输入拼写完成挑战..." onkeydown="if(event.keyCode==13) App.check(${w.id}, 'spell')">
-                                <button class="btn-confirm" onclick="App.check(${w.id}, 'spell')">确认</button>
+                                <input class="quiz-in" id="q-${w.id}" placeholder="拼写单词..." onkeydown="if(event.keyCode==13) App.check(${w.id}, false)">
+                                <button class="btn-main" onclick="App.check(${w.id}, false)">确定</button>
                             </div>`;
                 } else {
-                    body = `${badge}<span class="en-txt" style="color:var(--accent);">${w.e}</span>
+                    body = `<div class="stage-badge">${stageName}</div>
+                            <span class="en-txt">${w.e}</span>
+                            <span class="zh-txt">${w.z}</span>
+                            ${exHtml}
                             <div class="quiz-wrapper">
-                                <input class="quiz-in" id="q-${w.id}" placeholder="中文含义是？" onkeydown="if(event.keyCode==13) App.check(${w.id}, 'zh')">
-                                <button class="btn-confirm" onclick="App.check(${w.id}, 'zh')">完成</button>
+                                <div class="transcript-hint" id="t-${w.id}">点击开始识别并大声朗读...</div>
+                                <button class="btn-listen" id="btn-L-${w.id}" onclick="App.startListening(${w.id})">🎤 识别并朗读</button>
+                                <button class="btn-confirm-sm" onclick="App.check(${w.id}, true)">手动确认已读准</button>
                             </div>`;
                 }
             } else {
                 const diff = w.n - Date.now();
                 const timeStr = diff > 0 ? `${Math.floor(diff/60000)}m后` : '逾期';
-                body = `${badge}<span class="en-txt">${w.e}</span><span class="zh-txt">${w.z}</span>
+                body = `<div class="stage-badge" style="opacity:0.6">${isFinal ? '待默写' : '强化中'}</div>
+                        <span class="en-txt">${w.e}</span><span class="zh-txt">${w.z}</span>
+                        ${exHtml}
                         <span class="time-tag">⏲️ ${this.activeTab==='monitor'?timeStr:'永久掌握'}</span>`;
             }
-
             return `<div class="word-card">${body}
                 <div class="act-group">
-                    <button class="i-btn" onclick="App.say('${w.e}')">🔊 发音</button>
-                    <button class="i-btn" style="color:var(--warn)" onclick="App.peek(${w.id},'${(w.s>=10 && !isFinal)?w.z:w.e}')">👁️ 提示</button>
+                    <button class="i-btn" onclick="App.say('${w.e}')">🔊 单词发音</button>
                     <button class="i-btn" style="color:var(--critical);margin-left:auto" onclick="App.del(${w.id})">🗑️ 删除</button>
                 </div></div>`;
         },
 
         startListening(id) {
+            if (!this.recognition) return alert("不支持语音识别");
             const word = this.words.find(w => w.id === id);
-            const btn = document.getElementById(`v-${id}`);
-            const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-            if (!Recognition) {
-                alert("此环境不支持语音识别。请使用 Safari(iOS) 或 Chrome(Android) 并确保是 HTTPS 链接。");
-                return;
-            }
-
-            const rec = new Recognition();
-            rec.lang = 'en-US';
-            rec.interimResults = false;
-
-            rec.onstart = () => {
-                window.speechSynthesis.cancel();
-                btn.innerText = "Listening... 🎤";
-                btn.style.background = "var(--warn)";
-                btn.style.color = "#000";
-            };
-
-            rec.onresult = (e) => {
-                const heard = e.results[0][0].transcript.toLowerCase().trim().replace(/[.?!,]/g, "");
-                const target = word.e.toLowerCase().trim().replace(/[.?!,]/g, "");
-                
-                if (heard === target || target.includes(heard)) {
-                    btn.innerText = "✅ 识别正确";
-                    btn.style.background = "var(--success)";
-                    btn.style.color = "#fff";
-                    setTimeout(() => this.check(id, 'drill'), 600);
+            const btn = document.getElementById(`btn-L-${id}`);
+            const hint = document.getElementById(`t-${id}`);
+            
+            this.recognition.onstart = () => { btn.classList.add('active'); btn.innerText = "🔴 倾听中..."; };
+            this.recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.toLowerCase().trim();
+                hint.innerText = `识别: "${transcript}"`;
+                if (transcript.includes(word.e.toLowerCase().trim())) {
+                    hint.style.color = "var(--success)";
+                    setTimeout(() => App.check(id, true), 800);
                 } else {
-                    btn.innerText = `❌ 听到 "${heard}"`;
-                    btn.style.background = "var(--critical)";
-                    btn.style.color = "#fff";
-                    this.say(word.e);
+                    hint.style.color = "var(--critical)";
                 }
             };
-
-            rec.onerror = () => {
-                btn.innerText = "⚠️ 出错/超时";
-                btn.style.background = "var(--border)";
-            };
-
-            rec.start();
+            this.recognition.onerror = () => { btn.classList.remove('active'); btn.innerText = "🎤 识别错误"; };
+            this.recognition.onend = () => { btn.classList.remove('active'); if(btn.innerText.includes("倾听")) btn.innerText = "🎤 重试"; };
+            this.recognition.start();
         },
 
-        peek(id, correct) {
-            const input = document.getElementById(`q-${id}`);
-            if(!input) return alert(`提示: ${correct}`);
-            input.value = correct; input.style.color = 'var(--warn)';
-            setTimeout(() => { input.value = ""; input.style.color = 'var(--accent)'; input.focus(); }, 1200);
-        },
-
-        check(id, type) {
+        check(id, isReadMode) {
             const word = this.words.find(w => w.id === id);
-            let isCorrect = false;
-
-            if (type === 'drill') {
-                isCorrect = true; 
-            } else {
+            if (!isReadMode) {
                 const input = document.getElementById(`q-${id}`);
-                const val = input.value.trim().toLowerCase();
-                const target = (type === 'zh' ? word.z : word.e).toLowerCase();
-                isCorrect = type === 'zh' ? target.includes(val) : val === target;
-                
-                if (!isCorrect) {
-                    input.style.borderBottomColor = 'var(--critical)';
-                    setTimeout(() => input.style.borderBottomColor = 'var(--accent)', 1000);
-                    return;
-                }
+                if (input.value.toLowerCase().trim() !== word.e.toLowerCase().trim()) return;
+                word.s++; word.m_t = Date.now();
+            } else {
+                this.say(word.e);
+                word.c++;
+                if (word.c >= 10) { word.c = 0; word.s++; word.n = Date.now() + this.STAGES[word.s] * 60000; }
+                else { word.n = Date.now() + 1 * 60000; }
             }
-
-            if (isCorrect) {
-                word.s++; 
-                word.n = Date.now() + this.STAGES[Math.min(word.s-1, this.STAGES.length-1)] * 60000;
-                if(word.s >= this.STAGES.length) word.m_t = Date.now();
-                this.save(); this.render();
-                if (word.s <= 10) this.say(word.e); 
-            }
+            this.save(); this.render();
         },
 
         async sync(type) {
-            const token = await this.getAuthToken();
-            if(!token) return;
+            const token = await this.getAuthToken(); if(!token) return;
             const url = `https://api.github.com/gists/${this.GIST_ID}`;
             try {
                 if(type === 'push') {
                     await fetch(url, {
                         method: 'PATCH',
-                        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                        headers: { 'Authorization': `token ${token}` },
                         body: JSON.stringify({ files: { "words.json": { content: JSON.stringify(this.words) } } })
                     });
-                    alert("✅ 云端备份成功！");
+                    alert("✅ 已备份");
                 } else {
                     const res = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
                     const data = await res.json();
-                    if(data.files && data.files["words.json"]) {
+                    if(data.files["words.json"]) { 
                         this.words = JSON.parse(data.files["words.json"].content);
-                        this.save(); this.render();
-                        alert("✅ 云端同步成功！");
+                        this.save(); this.render(); alert("✅ 已下载");
                     }
                 }
-            } catch(e) { alert("⚠️ 网络错误。"); }
+            } catch(e) { alert("同步失败"); }
+        },
+
+        exportJSON() {
+            const blob = new Blob([JSON.stringify(this.words)], {type: "application/json"});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `Autumn_Words_${Date.now()}.json`; a.click();
+        },
+
+        importJSON(input) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.words = JSON.parse(e.target.result);
+                this.save(); this.render();
+            };
+            reader.readAsText(input.files[0]);
         },
 
         say(t) { 
-            if (!window.speechSynthesis) return;
             window.speechSynthesis.cancel();
-            const m = new SpeechSynthesisUtterance(t); 
-            m.lang='en-US'; m.rate = 0.85;
+            const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; 
             window.speechSynthesis.speak(m); 
         },
-        del(id) { if(confirm('确定删除?')) { this.words = this.words.filter(w=>w.id!==id); this.save(); this.render(); }}
+
+        sayEx(id) {
+            const word = this.words.find(w => w.id === id);
+            if (word && word.ex) this.say(word.ex);
+        },
+
+        del(id) { if(confirm('删除?')) { this.words = this.words.filter(w=>w.id!==id); this.save(); this.render(); }}
     };
 
     async function generatePoster() {
         const area = document.getElementById('captureArea');
         const canvas = await html2canvas(area, { backgroundColor: '#0d1117', scale: 2 });
-        const link = document.createElement('a'); link.download = `战报_${Date.now()}.png`;
+        const link = document.createElement('a'); link.download = `战报.png`;
         link.href = canvas.toDataURL(); link.click();
     }
     App.init();
